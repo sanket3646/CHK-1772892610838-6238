@@ -1,20 +1,10 @@
-import Navbar from "../components/Navbar";
-import Hero from "../components/Hero";
-import HospitalList from "../components/HospitalList";
-import QueueStatus from "../components/QueueStatus";
-
 export default function Home() {
   return (
-    <div className="bg-gray-100 min-h-screen">
-
-      <Navbar/>
-
-      <Hero/>
-
-      <HospitalList/>
-
-      <QueueStatus/>
-
+    <div className="p-10 text-center">
+      <h1 className="text-4xl font-bold">Hospital Platform</h1>
+      <p className="mt-4 text-gray-600">
+        Find hospitals and book appointments easily.
+      </p>
     </div>
-  );
+  )
 }

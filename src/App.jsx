@@ -1,22 +1,32 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom"
 
-import Home from "./pages/Home";
-import AdminDashboard from "./pages/AdminDashboard";
-import DoctorDashboard from "./pages/DoctorDashboard";
+import Navbar from "./components/Navbar"
+
+import Home from "./pages/Home"
+import PatientDashboard from "./pages/PatientDashboard"
+import DoctorDashboard from "./pages/DoctorDashboard"
+import AdminDashboard from "./pages/AdminDashboard"
 
 function App() {
   return (
-    <Router>
+    <BrowserRouter>
+
+      <Navbar />
+
       <Routes>
-        {/* Home Page */}
+
         <Route path="/" element={<Home />} />
 
-        {/* Admin Dashboard */}
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/doctor" element={<DoctorDashboard />}></Route>
+        <Route path="/patient-dashboard" element={<PatientDashboard />} />
+
+        <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
+
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
+
       </Routes>
-    </Router>
-  );
+
+    </BrowserRouter>
+  )
 }
 
-export default App;
+export default App
