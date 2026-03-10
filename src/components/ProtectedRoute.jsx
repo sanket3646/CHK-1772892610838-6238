@@ -1,36 +1,15 @@
-import { useEffect, useState } from "react"
-import { supabase } from "../lib/supabase"
 import { Navigate } from "react-router-dom"
+import { useAuth } from "../context/AuthContext"
 
 export default function ProtectedRoute({ children, role }) {
 
-  const [authorized, setAuthorized] = useState(null)
+  const { user, role: userRole, loading } = useAuth()
 
-  useEffect(() => {
-    checkUser()
-  }, [])
+  if(loading) return <div className="p-10">Loading...</div>
 
-  async function checkUser(){
+  if(!user) return <Navigate to="/login" />
 
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if(!user){
-      setAuthorized(false)
-      return
-    }
-
-    const { data } = await supabase
-      .from("users")
-      .select("role")
-      .eq("id", user.id)
-      .single()
-
-    setAuthorized(data.role === role)
-  }
-
-  if(authorized === null) return <div>Loading...</div>
-
-  if(!authorized) return <Navigate to="/login" />
+  if(role && role !== userRole) return <Navigate to="/" />
 
   return children
 }

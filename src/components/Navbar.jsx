@@ -1,56 +1,48 @@
-import { Link, useNavigate } from "react-router-dom"
-import { useEffect, useState } from "react"
-import { supabase } from "../lib/supabase"
+import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { supabase } from "../lib/supabase";
+import { useAuth } from "../context/AuthContext";
+export default function Navbar() {
+  const { user, role } = useAuth();
 
-export default function Navbar(){
+  const navigate = useNavigate();
 
-  const [user,setUser] = useState(null)
-  const [role,setRole] = useState(null)
+  useEffect(() => {
+    getUser();
+  }, []);
 
-  const navigate = useNavigate()
+  async function getUser() {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-  useEffect(()=>{
-    getUser()
-  },[])
+    if (!user) return;
 
-  async function getUser(){
-
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if(!user) return
-
-    setUser(user)
+    setUser(user);
 
     const { data } = await supabase
       .from("users")
       .select("role")
       .eq("id", user.id)
-      .single()
+      .single();
 
-    if(data){
-      setRole(data.role)
+    if (data) {
+      setRole(data.role);
     }
   }
 
-  async function logout(){
-
-    await supabase.auth.signOut()
-
-    setUser(null)
-    setRole(null)
-
-    navigate("/login")
+  async function logout() {
+    await supabase.auth.signOut();
+    navigate("/login");
   }
 
-  return(
+  return (
     <nav className="bg-blue-600 text-white px-6 py-4 flex justify-between items-center">
-
       <Link to="/" className="text-xl font-bold">
         Hospital Platform
       </Link>
 
       <div className="flex gap-6 items-center">
-
         <Link to="/">Home</Link>
 
         {!user && (
@@ -68,25 +60,16 @@ export default function Navbar(){
               <Link to="/patient-dashboard">Dashboard</Link>
             )}
 
-            {role === "doctor" && (
-              <Link to="/doctor-dashboard">Dashboard</Link>
-            )}
+            {role === "doctor" && <Link to="/doctor-dashboard">Dashboard</Link>}
 
-            {role === "admin" && (
-              <Link to="/admin-dashboard">Dashboard</Link>
-            )}
+            {role === "admin" && <Link to="/admin-dashboard">Dashboard</Link>}
 
-            <button
-              onClick={logout}
-              className="bg-red-500 px-3 py-1 rounded"
-            >
+            <button onClick={logout} className="bg-red-500 px-3 py-1 rounded">
               Logout
             </button>
           </>
         )}
-
       </div>
-
     </nav>
-  )
+  );
 }
