@@ -1,30 +1,89 @@
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
+import { useEffect, useState } from "react"
+import { supabase } from "../lib/supabase"
 
-export default function Navbar() {
-  return (
+export default function Navbar(){
+
+  const [user,setUser] = useState(null)
+  const [role,setRole] = useState(null)
+
+  const navigate = useNavigate()
+
+  useEffect(()=>{
+    getUser()
+  },[])
+
+  async function getUser(){
+
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if(!user) return
+
+    setUser(user)
+
+    const { data } = await supabase
+      .from("users")
+      .select("role")
+      .eq("id", user.id)
+      .single()
+
+    if(data){
+      setRole(data.role)
+    }
+  }
+
+  async function logout(){
+
+    await supabase.auth.signOut()
+
+    setUser(null)
+    setRole(null)
+
+    navigate("/login")
+  }
+
+  return(
     <nav className="bg-blue-600 text-white px-6 py-4 flex justify-between items-center">
 
-      <h1 className="text-xl font-bold">
+      <Link to="/" className="text-xl font-bold">
         Hospital Platform
-      </h1>
+      </Link>
 
-      <div className="flex gap-6">
+      <div className="flex gap-6 items-center">
 
-        <Link to="/" className="hover:text-gray-200">
-          Home
-        </Link>
+        <Link to="/">Home</Link>
 
-        <Link to="/patient-dashboard" className="hover:text-gray-200">
-          Patient
-        </Link>
+        {!user && (
+          <>
+            <Link to="/login">Login</Link>
+            <Link to="/signup">Signup</Link>
+          </>
+        )}
 
-        <Link to="/doctor-dashboard" className="hover:text-gray-200">
-          Doctor
-        </Link>
+        {user && (
+          <>
+            <Link to="/search-hospital">Find Hospital</Link>
 
-        <Link to="/admin-dashboard" className="hover:text-gray-200">
-          Admin
-        </Link>
+            {role === "patient" && (
+              <Link to="/patient-dashboard">Dashboard</Link>
+            )}
+
+            {role === "doctor" && (
+              <Link to="/doctor-dashboard">Dashboard</Link>
+            )}
+
+            {role === "admin" && (
+              <Link to="/admin-dashboard">Dashboard</Link>
+            )}
+
+            <button
+              onClick={logout}
+              className="bg-red-500 px-3 py-1 rounded"
+            >
+              Logout
+            </button>
+          </>
+        )}
 
       </div>
 
