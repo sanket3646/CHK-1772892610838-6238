@@ -19,8 +19,6 @@ export default function Login(){
       password
     })
 
-    setLoading(false)
-
     if(error){
       alert(error.message)
       return
