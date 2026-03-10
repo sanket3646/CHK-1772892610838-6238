@@ -46,18 +46,35 @@ export default function PatientDashboard(){
   }
 
 
-  async function searchHospitals(){
+ async function searchHospitals() {
 
-    const { data: symptomData } = await supabase
-      .from("symptoms")
-      .select("specialization_id")
-      .ilike("name", `%${symptom}%`)
-      .single()
+  if (!symptom) return
 
-    if(!symptomData){
-      alert("Symptom not found")
-      return
-    }
+  const res = await fetch("/.netlify/functions/analyze-symptoms", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ symptom })
+  })
+
+  const ai = await res.json()
+
+  const specialization = ai.specialization
+
+  setAnalysis(ai)
+
+  const { data } = await supabase
+    .from("hospital_specializations")
+    .select(`
+      hospitals(id,name,location)
+    `)
+    .eq("specialization", specialization)
+
+  const hospitalList = data.map(h => h.hospitals)
+
+  setHospitals(hospitalList)
+}
 
     const { data } = await supabase
       .from("hospital_specializations")
